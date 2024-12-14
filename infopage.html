@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Shrikhand&display=swap" rel="stylesheet">
+    <title>Quiz App - Info Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: black;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(15,63,63,1) 35%, rgba(26,53,100,1) 100%);
+            padding: 20px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            border-radius: 20px;
+        }
+
+        .info-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: linear-gradient(#212121, #212121) padding-box,
+              linear-gradient(145deg, transparent 35%,#e81cff, #40c9ff) border-box;
+            border: 2px solid transparent;
+            border-radius: 16px;
+            color: #ffffff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+        }
+
+        .info-text {
+            font-family: "Shrikhand", serif;
+            font-size: 40px;
+            font-weight: bold;
+            text-align: center;
+            position: relative;
+            left: 40px;
+        }
+
+        .form-container {
+            background: linear-gradient(#212121, #212121) padding-box,
+              linear-gradient(145deg, transparent 35%,#e81cff, #40c9ff) border-box;
+            border: 2px solid transparent;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #f5faff;
+            margin-bottom: 20px;
+        }
+
+        .form-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-size: 1rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #fffafa;
+        }
+
+        input {
+            padding: 10px;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            font-size: 1rem;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 20px;
+            width: auto;
+            align-self: center;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+        .anker{
+            font-style: none;
+            
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Info Section -->
+        <div class="info-section">
+            <div class="info-text">
+                <p>Welcome To Our Quiz Application</p>
+            </div>
+        </div>
+
+        <!-- Candidate Details Form -->
+        <div id="details-form" class="form-container">
+            <h1>Candidate Details</h1>
+            <form id="candidate-form">
+                <div class="form-layout">
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" id="name" placeholder="Enter your name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="father-name">Father's Name</label>
+                        <input type="text" id="father-name" placeholder="Enter your father's name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="roll-no">Roll Number</label>
+                        <input type="text" id="roll-no" placeholder="Enter your roll number" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="subject">Subject</label>
+                        <input type="text" id="subject" placeholder="Enter your subject" required>
+                    </div>
+                </div>
+                <button type="submit"><a class="anker" href="quiz page.html">Start Quiz</a></button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const candidateForm = document.getElementById('candidate-form');
+        const detailsForm = document.getElementById('details-form');
+
+        // Store candidate details in local storage
+        candidateForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const name = document.getElementById('name').value;
+            const fatherName = document.getElementById('father-name').value;
+            const rollNo = document.getElementById('roll-no').value;
+            const subject = document.getElementById('subject').value;
+
+            localStorage.setItem('candidateName', name);
+            localStorage.setItem('fatherName', fatherName);
+            localStorage.setItem('rollNo', rollNo);
+            localStorage.setItem('subject', subject);
+
+            alert('Candidate details saved. You can now start the quiz!');
+            // Redirect to quiz page (you can later update this URL)
+            window.location.href = "quiz-page.html";
+        });
+    </script>
+</body>
+</html>

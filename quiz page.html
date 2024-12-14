@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .question {
+            margin-bottom: 20px;
+        }
+
+        .question p {
+            font-weight: bold;
+        }
+
+        .question label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            font-size: 1rem;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .error {
+            color: red;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .validation-message {
+            color: red;
+            text-align: center;
+            font-size: 1rem;
+            margin-top: 20px;
+        }
+
+        .timer {
+            text-align: center;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover, .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Quiz Questions</h1>
+        <div class="timer" id="timer">Time Remaining: 15:00</div>
+        <form id="quiz-form"></form>
+        <div class="validation-message" id="validation-message" style="display: none;">Please attempt all questions before submitting.</div>
+        <div class="button-container">
+            <button id="back-btn" style="display:none;">Back</button>
+            <button id="next-btn">Next</button>
+        </div>
+        <button id="start-again" class="start-again" style="display:none;">Start Again</button>
+    </div>
+
+    <div id="result-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="close-modal">&times;</span>
+            <h2>Quiz Result</h2>
+            <p id="result-text"></p>
+        </div>
+    </div>
+
+    <script>
+        var quizForm = document.getElementById('quiz-form');
+        var nextBtn = document.getElementById('next-btn');
+        var backBtn = document.getElementById('back-btn');
+        var validationMessage = document.getElementById('validation-message');
+        var startAgainButton = document.getElementById('start-again');
+        var timerElement = document.getElementById('timer');
+        var resultModal = document.getElementById('result-modal');
+        var resultText = document.getElementById('result-text');
+        var closeModal = document.getElementById('close-modal');
+
+        var questions = [
+            { question: "What is the capital of France?", options: ["Paris", "Madrid", "Berlin", "Rome"], answer: "A" },
+            { question: "What is 2 + 2?", options: ["3", "4", "5"], answer: "B" },
+            { question: "What is the largest planet?", options: ["Earth", "Jupiter", "Mars"], answer: "B" },
+            { question: "What is the chemical symbol for water?", options: ["O2", "H2O", "CO2", "N2"], answer: "B" },
+            { question: "Who wrote 'Hamlet'?", options: ["Shakespeare", "Dickens"], answer: "A" }
+        ];
+
+        var shuffledQuestions = questions.sort(() => Math.random() - 0.5);
+        var currentQuestionIndex = 0;
+        var answers = Array(shuffledQuestions.length).fill(null);
+        var timer;
+        var timeRemaining = 15 * 60; // 15 minutes in seconds
+
+        function startTimer() {
+            timer = setInterval(function () {
+                timeRemaining--;
+                updateTimerDisplay();
+                if (timeRemaining <= 0) {
+                    clearInterval(timer);
+                    submitQuiz();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            var minutes = Math.floor(timeRemaining / 60);
+            var seconds = timeRemaining % 60;
+            timerElement.textContent = `Time Remaining: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        }
+
+        function displayQuestion(index) {
+            if (index >= shuffledQuestions.length) {
+                submitQuiz();
+                return;
+            }
+
+            var q = shuffledQuestions[index];
+            var questionHTML = `<div class="question"><p>${index + 1}. ${q.question}</p>`;
+            for (var i = 0; i < q.options.length; i++) {
+                questionHTML += `<label><input type="radio" name="q${index}" value="${String.fromCharCode(65 + i)}"` +
+                    (answers[index] === String.fromCharCode(65 + i) ? ' checked' : '') + `> ${q.options[i]}</label>`;
+            }
+            questionHTML += `</div>`;
+            quizForm.innerHTML = questionHTML;
+
+            backBtn.style.display = index > 0 ? 'inline-block' : 'none';
+            nextBtn.textContent = index === shuffledQuestions.length - 1 ? 'Submit' : 'Next';
+            validationMessage.style.display = "none";
+        }
+
+        function submitQuiz() {
+            clearInterval(timer);
+            var score = 0;
+            for (var i = 0; i < shuffledQuestions.length; i++) {
+                if (answers[i] === shuffledQuestions[i].answer) {
+                    score++;
+                }
+            }
+
+            var percentage = (score / shuffledQuestions.length) * 100;
+            var grade = percentage >= 80 ? 'A' : percentage >= 60 ? 'B' : percentage >= 40 ? 'C' : 'D';
+            resultText.innerHTML = `You scored ${score} out of ${shuffledQuestions.length}<br>` +
+                `Percentage: ${percentage.toFixed(2)}%<br>` +
+                `Grade: ${grade}`;
+            resultModal.style.display = "block";
+        }
+
+        nextBtn.addEventListener('click', function () {
+            var selectedAnswer = document.querySelector(`input[name="q${currentQuestionIndex}"]:checked`);
+            answers[currentQuestionIndex] = selectedAnswer ? selectedAnswer.value : null;
+
+            if (currentQuestionIndex === shuffledQuestions.length - 1) {
+                if (answers.includes(null)) {
+                    validationMessage.style.display = "block";
+                } else {
+                    submitQuiz();
+                }
+            } else {
+                currentQuestionIndex++;
+                displayQuestion(currentQuestionIndex);
+            }
+        });
+
+        backBtn.addEventListener('click', function () {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                displayQuestion(currentQuestionIndex);
+            }
+        });
+
+        startAgainButton.addEventListener('click', function () {
+            currentQuestionIndex = 0;
+            answers = Array(shuffledQuestions.length).fill(null);
+            resultModal.style.display = "none";
+            timeRemaining = 15 * 60;
+            startTimer();
+            displayQuestion(currentQuestionIndex);
+        });
+
+        closeModal.addEventListener('click', function () {
+            resultModal.style.display = "none";
+        });
+
+        window.onclick = function (event) {
+            if (event.target === resultModal) {
+                resultModal.style.display = "none";
+            }
+        };
+
+        startTimer();
+        displayQuestion(currentQuestionIndex);
+    </script>
+</body>
+</html>
